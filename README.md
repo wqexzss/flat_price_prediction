@@ -21,7 +21,9 @@
 ```bash
 pip install -r requirements.txt
 ```
-
+```bash
+pip install python-telegram-bot python-dotenv catboost
+```
 Парсинг объявлений:
 
 ```bash
@@ -30,7 +32,7 @@ python src/parser.py --pages 1
 
 Вся работа с моделью находится в ноутбуке:
 
-```text
+```bash
 src/model.ipynb
 ```
 
