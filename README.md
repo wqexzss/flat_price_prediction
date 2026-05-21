@@ -25,6 +25,21 @@ pip install -r requirements.txt
 python src/parser.py --city Москва --pages 8
 ```
 
+Парсер не затирает старые данные, а добавляет новые объявления в
+`data/raw/flats_from_sites.csv` и удаляет дубли по ссылке.
+
+Можно собрать несколько городов:
+
+```bash
+python src/parser.py --city Москва Санкт-Петербург --pages 10
+```
+
+Если нужно собрать файл заново:
+
+```bash
+python src/parser.py --city Москва --pages 10 --replace
+```
+
 Обучение модели находится в ноутбуке:
 
 ```text

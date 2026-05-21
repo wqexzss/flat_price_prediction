@@ -26,6 +26,9 @@ FEATURES = [
     'floor',
     'total_floors',
     'distance_from_center',
+    'is_first_floor',
+    'is_last_floor',
+    'floor_ratio',
 ]
 
 CITY, AREA, ROOMS, FLOOR, TOTAL_FLOORS, DISTANCE = range(6)
@@ -40,6 +43,11 @@ high_model.load_model(BASE_DIR / 'models' / 'catboost_high.cbm')
 
 
 def predict_price(flat):
+    flat = dict(flat)
+    flat['is_first_floor'] = int(flat['floor'] == 1)
+    flat['is_last_floor'] = int(flat['floor'] == flat['total_floors'])
+    flat['floor_ratio'] = round(flat['floor'] / flat['total_floors'], 3)
+
     data = pd.DataFrame([flat])[FEATURES]
 
     price = model.predict(data)[0]
