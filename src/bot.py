@@ -37,12 +37,23 @@ FEATURES = [
     'furnishingstatus',
 ]
 
-(AREA, BEDROOMS, BATHROOMS, STORIES,
+(CITY, DISTANCE, AREA, BEDROOMS, BATHROOMS, STORIES,
  MAINROAD, GUESTROOM, BASEMENT,
- HOTWATER, AIRCON, PARKING, PREFAREA, FURNISHING) = range(12)
+ HOTWATER, AIRCON, PARKING, FURNISHING) = range(13)
 
-YES_NO = [['yes', 'no']]
-FURNISHING_KB = [['furnished', 'semi-furnished', 'unfurnished']]
+YES_NO = [['Да', 'Нет']]
+FURNISHING_KB = [['С мебелью'], ['Частично с мебелью'], ['Без мебели']]
+
+YES_NO_VALUES = {
+    'Да': 'yes',
+    'Нет': 'no',
+}
+
+FURNISHING_VALUES = {
+    'С мебелью': 'furnished',
+    'Частично с мебелью': 'semi-furnished',
+    'Без мебели': 'unfurnished',
+}
 
 
 def predict_price(flat):
@@ -56,10 +67,40 @@ def predict_price(flat):
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data.clear()
     await update.message.reply_text(
         'Привет! Я оценю стоимость квартиры.\n\n'
-        'Введи площадь, например: 5000'
+        'В каком городе находится квартира?'
     )
+    return CITY
+
+
+async def get_city(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    ctx.user_data['city'] = update.message.text.strip()
+    await update.message.reply_text(
+        'Как далеко квартира от центра города? Введи расстояние в км, например: 7'
+    )
+    return DISTANCE
+
+
+async def get_distance(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    try:
+        distance = float(update.message.text.replace(',', '.'))
+        ctx.user_data['distance_from_center'] = distance
+        ctx.user_data['prefarea'] = 'yes' if distance <= 7 else 'no'
+        await update.message.reply_text('Введи площадь, например: 5000')
+        return AREA
+    except ValueError:
+        await update.message.reply_text('Введи число, например: 7')
+        return DISTANCE
+
+
+def get_yes_no_answer(text):
+    return YES_NO_VALUES.get(text)
+
+
+def get_furnishing_answer(text):
+    return FURNISHING_VALUES.get(text)
     return AREA
 
 
@@ -107,7 +148,16 @@ async def get_stories(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 
 async def get_mainroad(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    ctx.user_data['mainroad'] = update.message.text
+    answer = get_yes_no_answer(update.message.text)
+
+    if not answer:
+        await update.message.reply_text(
+            'Выбери Да или Нет',
+            reply_markup=ReplyKeyboardMarkup(YES_NO, one_time_keyboard=True)
+        )
+        return MAINROAD
+
+    ctx.user_data['mainroad'] = answer
     await update.message.reply_text(
         'Есть гостевая комната?',
         reply_markup=ReplyKeyboardMarkup(YES_NO, one_time_keyboard=True)
@@ -116,7 +166,16 @@ async def get_mainroad(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 
 async def get_guestroom(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    ctx.user_data['guestroom'] = update.message.text
+    answer = get_yes_no_answer(update.message.text)
+
+    if not answer:
+        await update.message.reply_text(
+            'Выбери Да или Нет',
+            reply_markup=ReplyKeyboardMarkup(YES_NO, one_time_keyboard=True)
+        )
+        return GUESTROOM
+
+    ctx.user_data['guestroom'] = answer
     await update.message.reply_text(
         'Есть подвал?',
         reply_markup=ReplyKeyboardMarkup(YES_NO, one_time_keyboard=True)
@@ -125,7 +184,16 @@ async def get_guestroom(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 
 async def get_basement(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    ctx.user_data['basement'] = update.message.text
+    answer = get_yes_no_answer(update.message.text)
+
+    if not answer:
+        await update.message.reply_text(
+            'Выбери Да или Нет',
+            reply_markup=ReplyKeyboardMarkup(YES_NO, one_time_keyboard=True)
+        )
+        return BASEMENT
+
+    ctx.user_data['basement'] = answer
     await update.message.reply_text(
         'Есть горячее водоснабжение?',
         reply_markup=ReplyKeyboardMarkup(YES_NO, one_time_keyboard=True)
@@ -134,7 +202,16 @@ async def get_basement(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 
 async def get_hotwater(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    ctx.user_data['hotwaterheating'] = update.message.text
+    answer = get_yes_no_answer(update.message.text)
+
+    if not answer:
+        await update.message.reply_text(
+            'Выбери Да или Нет',
+            reply_markup=ReplyKeyboardMarkup(YES_NO, one_time_keyboard=True)
+        )
+        return HOTWATER
+
+    ctx.user_data['hotwaterheating'] = answer
     await update.message.reply_text(
         'Есть кондиционер?',
         reply_markup=ReplyKeyboardMarkup(YES_NO, one_time_keyboard=True)
@@ -143,7 +220,16 @@ async def get_hotwater(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 
 async def get_aircon(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    ctx.user_data['airconditioning'] = update.message.text
+    answer = get_yes_no_answer(update.message.text)
+
+    if not answer:
+        await update.message.reply_text(
+            'Выбери Да или Нет',
+            reply_markup=ReplyKeyboardMarkup(YES_NO, one_time_keyboard=True)
+        )
+        return AIRCON
+
+    ctx.user_data['airconditioning'] = answer
     await update.message.reply_text(
         'Сколько парковочных мест?',
         reply_markup=ReplyKeyboardMarkup([['0', '1', '2', '3']], one_time_keyboard=True)
@@ -155,33 +241,37 @@ async def get_parking(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     try:
         ctx.user_data['parking'] = int(update.message.text)
         await update.message.reply_text(
-            'Престижный район?',
-            reply_markup=ReplyKeyboardMarkup(YES_NO, one_time_keyboard=True)
+        'Состояние меблировки?',
+        reply_markup=ReplyKeyboardMarkup(FURNISHING_KB, one_time_keyboard=True)
         )
-        return PREFAREA
+        return FURNISHING
     except ValueError:
         await update.message.reply_text('Введи 0, 1, 2 или 3')
         return PARKING
 
 
-async def get_prefarea(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    ctx.user_data['prefarea'] = update.message.text
-    await update.message.reply_text(
-        'Состояние меблировки?',
-        reply_markup=ReplyKeyboardMarkup(FURNISHING_KB, one_time_keyboard=True)
-    )
-    return FURNISHING
-
-
 async def get_furnishing(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    ctx.user_data['furnishingstatus'] = update.message.text
+    answer = get_furnishing_answer(update.message.text)
+
+    if not answer:
+        await update.message.reply_text(
+            'Выбери вариант с клавиатуры',
+            reply_markup=ReplyKeyboardMarkup(FURNISHING_KB, one_time_keyboard=True)
+        )
+        return FURNISHING
+
+    ctx.user_data['furnishingstatus'] = answer
     flat = dict(ctx.user_data)
 
     try:
         price, low, high = predict_price(flat)
+        city = flat['city']
+        distance = flat['distance_from_center']
 
         await update.message.reply_text(
             'Оценка квартиры\n\n'
+            f'Город: {city}\n'
+            f'Расстояние от центра: {distance} км\n\n'
             f'Прогноз: {price:,.0f}\n'
             f'Интервал: {low:,.0f} - {high:,.0f}',
             reply_markup=ReplyKeyboardRemove()
@@ -212,6 +302,8 @@ def main():
     conv = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
+            CITY:      [MessageHandler(filters.TEXT & ~filters.COMMAND, get_city)],
+            DISTANCE:  [MessageHandler(filters.TEXT & ~filters.COMMAND, get_distance)],
             AREA:      [MessageHandler(filters.TEXT & ~filters.COMMAND, get_area)],
             BEDROOMS:  [MessageHandler(filters.TEXT & ~filters.COMMAND, get_bedrooms)],
             BATHROOMS: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_bathrooms)],
@@ -222,7 +314,6 @@ def main():
             HOTWATER:  [MessageHandler(filters.TEXT & ~filters.COMMAND, get_hotwater)],
             AIRCON:    [MessageHandler(filters.TEXT & ~filters.COMMAND, get_aircon)],
             PARKING:   [MessageHandler(filters.TEXT & ~filters.COMMAND, get_parking)],
-            PREFAREA:  [MessageHandler(filters.TEXT & ~filters.COMMAND, get_prefarea)],
             FURNISHING: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_furnishing)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
