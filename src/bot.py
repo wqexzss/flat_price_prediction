@@ -8,10 +8,11 @@ from telegram.ext import (
 )
 from catboost import CatBoostRegressor
 
-load_dotenv()
+BASE_DIR = Path(__file__).parent.parent
+load_dotenv(dotenv_path=BASE_DIR / ".env")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-BASE_DIR = Path(__file__).parent.parent
+
 
 model = CatBoostRegressor()
 low_model = CatBoostRegressor()
