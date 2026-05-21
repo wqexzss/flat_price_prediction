@@ -103,6 +103,16 @@ def find_metro(text):
     return metro
 
 
+def find_metro_minutes(text):
+    match = re.search(r'[А-ЯЁа-яёA-Za-z\-\s]+\s+(\d+)\s+мин\.', text)
+
+    if not match:
+        return None
+
+    minutes = int(match.group(1))
+    return minutes if 1 <= minutes <= 60 else None
+
+
 def get_distance_from_center(metro):
     if metro in METRO_DISTANCE:
         return METRO_DISTANCE[metro]
@@ -117,6 +127,7 @@ def parse_flat(card, city):
     rooms = re.search(r'(\d+)-комнат', text)
     floor = re.search(r'(\d+)\s*этаж\s*из\s*(\d+)', text)
     metro = find_metro(text)
+    metro_minutes = find_metro_minutes(text)
 
     link = None
     if link_tag:
@@ -137,6 +148,7 @@ def parse_flat(card, city):
         'floor': floor_value,
         'total_floors': total_floors,
         'metro': metro,
+        'metro_minutes': metro_minutes,
         'distance_from_center': get_distance_from_center(metro),
         'link': link,
         'raw_text': text,
@@ -171,7 +183,10 @@ def clean_data(df):
         df['is_last_floor'] = None
     if 'floor_ratio' not in df:
         df['floor_ratio'] = None
+    if 'metro_minutes' not in df:
+        df['metro_minutes'] = None
 
+    df['metro_minutes'] = df['metro_minutes'].fillna(20)
     df['price_per_meter'] = df['price_per_meter'].fillna(
         (df['price'] / df['area']).round(2)
     )
@@ -190,6 +205,7 @@ def clean_data(df):
     df = df[df['rooms'].between(1, 8)]
     df = df[df['floor'] > 0]
     df = df[df['total_floors'] >= df['floor']]
+    df = df[df['metro_minutes'].between(1, 60)]
     df = df[df['price_per_meter'].between(150000, 2500000)]
 
     return df.reset_index(drop=True)

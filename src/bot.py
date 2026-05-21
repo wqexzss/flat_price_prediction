@@ -25,12 +25,13 @@ FEATURES = [
     'floor',
     'total_floors',
     'distance_from_center',
+    'metro_minutes',
     'is_first_floor',
     'is_last_floor',
     'floor_ratio',
 ]
 
-AREA, ROOMS, FLOOR, TOTAL_FLOORS, DISTANCE = range(5)
+AREA, ROOMS, FLOOR, TOTAL_FLOORS, DISTANCE, METRO_MINUTES = range(6)
 
 model = CatBoostRegressor()
 low_model = CatBoostRegressor()
@@ -116,6 +117,24 @@ async def get_total_floors(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def get_distance(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         context.user_data['distance_from_center'] = float(update.message.text.replace(',', '.'))
+        await update.message.reply_text(
+            'Сколько минут пешком до метро? Если метро далеко, введи 30'
+        )
+        return METRO_MINUTES
+    except ValueError:
+        await update.message.reply_text('Введи число, например: 8')
+        return DISTANCE
+
+
+async def get_metro_minutes(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        metro_minutes = int(update.message.text)
+
+        if metro_minutes < 1:
+            await update.message.reply_text('Введи число больше 0')
+            return METRO_MINUTES
+
+        context.user_data['metro_minutes'] = min(metro_minutes, 60)
         flat = dict(context.user_data)
         price, low, high = predict_price(flat)
         area = flat['area']
@@ -123,6 +142,7 @@ async def get_distance(update: Update, context: ContextTypes.DEFAULT_TYPE):
         floor = flat['floor']
         total_floors = flat['total_floors']
         distance = flat['distance_from_center']
+        metro = flat['metro_minutes']
 
         await update.message.reply_text(
             'Оценка квартиры\n\n'
@@ -130,6 +150,7 @@ async def get_distance(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f'Комнат: {rooms}\n'
             f'Этаж: {floor} из {total_floors}\n'
             f'Расстояние от центра: {distance} км\n\n'
+            f'До метро: {metro} мин.\n\n'
             f'Примерная цена: {price:,.0f}\n'
             f'Интервал: {low:,.0f} - {high:,.0f}',
             reply_markup=ReplyKeyboardRemove()
@@ -137,8 +158,8 @@ async def get_distance(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text('Чтобы оценить ещё одну квартиру, напиши /start')
         return ConversationHandler.END
     except ValueError:
-        await update.message.reply_text('Введи число, например: 8')
-        return DISTANCE
+        await update.message.reply_text('Введи целое число, например: 12')
+        return METRO_MINUTES
     except Exception as error:
         await update.message.reply_text(f'Ошибка: {error}')
         return ConversationHandler.END
@@ -165,6 +186,7 @@ def main():
             FLOOR: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_floor)],
             TOTAL_FLOORS: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_total_floors)],
             DISTANCE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_distance)],
+            METRO_MINUTES: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_metro_minutes)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
