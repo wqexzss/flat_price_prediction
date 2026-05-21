@@ -20,7 +20,6 @@ load_dotenv(dotenv_path=BASE_DIR / '.env')
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 
 FEATURES = [
-    'city',
     'area',
     'rooms',
     'floor',
@@ -31,7 +30,7 @@ FEATURES = [
     'floor_ratio',
 ]
 
-CITY, AREA, ROOMS, FLOOR, TOTAL_FLOORS, DISTANCE = range(6)
+AREA, ROOMS, FLOOR, TOTAL_FLOORS, DISTANCE = range(5)
 
 model = CatBoostRegressor()
 low_model = CatBoostRegressor()
@@ -61,14 +60,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     await update.message.reply_text(
         'Привет! Я помогу примерно оценить квартиру.\n\n'
-        'В каком городе находится квартира? Например: Москва'
+        'Какая площадь квартиры? Например: 60'
     )
-    return CITY
-
-
-async def get_city(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    context.user_data['city'] = update.message.text.strip()
-    await update.message.reply_text('Какая площадь квартиры? Например: 60')
     return AREA
 
 
@@ -125,7 +118,6 @@ async def get_distance(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data['distance_from_center'] = float(update.message.text.replace(',', '.'))
         flat = dict(context.user_data)
         price, low, high = predict_price(flat)
-        city = flat['city']
         area = flat['area']
         rooms = flat['rooms']
         floor = flat['floor']
@@ -134,7 +126,6 @@ async def get_distance(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await update.message.reply_text(
             'Оценка квартиры\n\n'
-            f'Город: {city}\n'
             f'Площадь: {area} кв. м\n'
             f'Комнат: {rooms}\n'
             f'Этаж: {floor} из {total_floors}\n'
@@ -169,7 +160,6 @@ def main():
     conv = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
-            CITY: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_city)],
             AREA: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_area)],
             ROOMS: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_rooms)],
             FLOOR: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_floor)],
