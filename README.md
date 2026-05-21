@@ -33,3 +33,9 @@ python src/parser.py --pages 1
 ```text
 src/model.ipynb
 ```
+
+Запуск бота:
+
+```text
+python src/bot.py
+```
