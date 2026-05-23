@@ -6,3 +6,5 @@ __pycache__/
 .env
 catboost_info/
 src/catboost_info/
+input_data.csv
+models/*.cbm

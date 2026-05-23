@@ -1,0 +1,525 @@
+{
+  "model_name": "input_catboost_model",
+  "target": "log1p(price)",
+  "features": [
+    "area",
+    "kitchen_area",
+    "level",
+    "levels",
+    "rooms",
+    "geo_lat",
+    "geo_lon",
+    "year",
+    "floor_ratio",
+    "is_first_floor",
+    "is_last_floor",
+    "area_per_room",
+    "kitchen_ratio",
+    "log_area",
+    "building_type",
+    "object_type",
+    "id_region",
+    "postal_code",
+    "lat_round",
+    "lon_round",
+    "month"
+  ],
+  "cat_features": [
+    "building_type",
+    "object_type",
+    "id_region",
+    "postal_code",
+    "lat_round",
+    "lon_round",
+    "month"
+  ],
+  "num_features": [
+    "area",
+    "kitchen_area",
+    "level",
+    "levels",
+    "rooms",
+    "geo_lat",
+    "geo_lon",
+    "year",
+    "floor_ratio",
+    "is_first_floor",
+    "is_last_floor",
+    "area_per_room",
+    "kitchen_ratio",
+    "log_area"
+  ],
+  "numeric_medians": {
+    "area": 46.25,
+    "kitchen_area": 7.4,
+    "level": 5.0,
+    "levels": 10.0,
+    "rooms": 2.0,
+    "geo_lat": 55.6437604,
+    "geo_lon": 42.7077941,
+    "year": 2021.0,
+    "floor_ratio": 0.5882352941176471,
+    "is_first_floor": 0.0,
+    "is_last_floor": 0.0,
+    "area_per_room": 29.0,
+    "kitchen_ratio": 0.16,
+    "log_area": 3.855452653939752
+  },
+  "cat_defaults": {
+    "building_type": "0",
+    "object_type": "0",
+    "id_region": "77",
+    "postal_code": "-1",
+    "lat_round": "55",
+    "lon_round": "37",
+    "month": "7"
+  },
+  "region_defaults": {
+    "1": {
+      "geo_lat": 45.0007921,
+      "geo_lon": 38.9331845,
+      "postal_code": "385121"
+    },
+    "10": {
+      "geo_lat": 61.778926299999995,
+      "geo_lon": 34.334969900000004,
+      "postal_code": "185014"
+    },
+    "11": {
+      "geo_lat": 61.785313450000004,
+      "geo_lon": 50.84565,
+      "postal_code": "167005"
+    },
+    "12": {
+      "geo_lat": 56.6366987,
+      "geo_lon": 47.88359,
+      "postal_code": "424019"
+    },
+    "13": {
+      "geo_lat": 54.188118,
+      "geo_lon": 45.1580933,
+      "postal_code": "430009"
+    },
+    "14": {
+      "geo_lat": 62.0362977,
+      "geo_lon": 129.7252726,
+      "postal_code": "677000"
+    },
+    "15": {
+      "geo_lat": 43.0385315,
+      "geo_lon": 44.6555869,
+      "postal_code": "362045"
+    },
+    "16": {
+      "geo_lat": 55.790822500000004,
+      "geo_lon": 49.1832287,
+      "postal_code": "420000"
+    },
+    "17": {
+      "geo_lat": 51.7071405,
+      "geo_lon": 94.42723095,
+      "postal_code": "667003"
+    },
+    "18": {
+      "geo_lat": 56.853927,
+      "geo_lon": 53.2319065,
+      "postal_code": "426000"
+    },
+    "19": {
+      "geo_lat": 53.7261182,
+      "geo_lon": 91.423056,
+      "postal_code": "655017"
+    },
+    "2": {
+      "geo_lat": 54.7296156,
+      "geo_lon": 55.9578468,
+      "postal_code": "450000"
+    },
+    "20": {
+      "geo_lat": 43.3221614,
+      "geo_lon": 45.694763,
+      "postal_code": "364024"
+    },
+    "200": {
+      "geo_lat": 60.939343,
+      "geo_lon": 69.0397406,
+      "postal_code": "677000"
+    },
+    "21": {
+      "geo_lat": 56.1191426,
+      "geo_lon": 47.2648304,
+      "postal_code": "428003"
+    },
+    "22": {
+      "geo_lat": 53.3445415,
+      "geo_lon": 83.71001,
+      "postal_code": "656067"
+    },
+    "23": {
+      "geo_lat": 44.99279745,
+      "geo_lon": 39.0339752,
+      "postal_code": "-1"
+    },
+    "24": {
+      "geo_lat": 56.023613,
+      "geo_lon": 92.868283,
+      "postal_code": "660012"
+    },
+    "25": {
+      "geo_lat": 43.121537,
+      "geo_lon": 131.95792649999999,
+      "postal_code": "690109"
+    },
+    "26": {
+      "geo_lat": 45.0134947,
+      "geo_lon": 41.9762141,
+      "postal_code": "-1"
+    },
+    "27": {
+      "geo_lat": 48.508415,
+      "geo_lon": 135.1138119,
+      "postal_code": "681000"
+    },
+    "28": {
+      "geo_lat": 50.2928305,
+      "geo_lon": 127.527198,
+      "postal_code": "675028"
+    },
+    "29": {
+      "geo_lat": 64.537904,
+      "geo_lon": 40.551722,
+      "postal_code": "163046"
+    },
+    "3": {
+      "geo_lat": 51.82297,
+      "geo_lon": 107.6070395,
+      "postal_code": "670031"
+    },
+    "30": {
+      "geo_lat": 46.352827,
+      "geo_lon": 48.044956,
+      "postal_code": "414024"
+    },
+    "31": {
+      "geo_lat": 50.5998367,
+      "geo_lon": 36.589756,
+      "postal_code": "308009"
+    },
+    "32": {
+      "geo_lat": 53.2612533,
+      "geo_lon": 34.3471268,
+      "postal_code": "241001"
+    },
+    "33": {
+      "geo_lat": 56.136356,
+      "geo_lon": 40.376614,
+      "postal_code": "600015"
+    },
+    "34": {
+      "geo_lat": 48.744204,
+      "geo_lon": 44.5242114,
+      "postal_code": "400081"
+    },
+    "35": {
+      "geo_lat": 59.203532,
+      "geo_lon": 39.87328,
+      "postal_code": "160032"
+    },
+    "36": {
+      "geo_lat": 51.6718941,
+      "geo_lon": 39.1969229,
+      "postal_code": "394010"
+    },
+    "37": {
+      "geo_lat": 56.989761,
+      "geo_lon": 40.992291,
+      "postal_code": "153012"
+    },
+    "38": {
+      "geo_lat": 52.2864036,
+      "geo_lon": 104.2341848,
+      "postal_code": "664528"
+    },
+    "39": {
+      "geo_lat": 54.7213807,
+      "geo_lon": 20.505089,
+      "postal_code": "236029"
+    },
+    "4": {
+      "geo_lat": 51.9610133,
+      "geo_lon": 85.920892,
+      "postal_code": "649002"
+    },
+    "40": {
+      "geo_lat": 54.5250307,
+      "geo_lon": 36.268017,
+      "postal_code": "248033"
+    },
+    "41": {
+      "geo_lat": 53.054207000000005,
+      "geo_lon": 158.65052,
+      "postal_code": "683024"
+    },
+    "42": {
+      "geo_lat": 55.3264932,
+      "geo_lon": 86.1700219,
+      "postal_code": "650023"
+    },
+    "43": {
+      "geo_lat": 58.5865313,
+      "geo_lon": 49.63892165,
+      "postal_code": "610014"
+    },
+    "44": {
+      "geo_lat": 57.755872,
+      "geo_lon": 40.9448799,
+      "postal_code": "156022"
+    },
+    "45": {
+      "geo_lat": 55.448199,
+      "geo_lon": 65.3149801,
+      "postal_code": "640023"
+    },
+    "46": {
+      "geo_lat": 51.741143,
+      "geo_lon": 36.163946,
+      "postal_code": "305006"
+    },
+    "47": {
+      "geo_lat": 60.044862,
+      "geo_lon": 30.45189,
+      "postal_code": "188662"
+    },
+    "48": {
+      "geo_lat": 52.596963,
+      "geo_lon": 39.545919100000006,
+      "postal_code": "398004"
+    },
+    "49": {
+      "geo_lat": 59.559406,
+      "geo_lon": 150.809332,
+      "postal_code": "685000"
+    },
+    "5": {
+      "geo_lat": 42.9599262,
+      "geo_lon": 47.5176066,
+      "postal_code": "367000"
+    },
+    "50": {
+      "geo_lat": 55.7279065,
+      "geo_lon": 37.772577,
+      "postal_code": "-1"
+    },
+    "51": {
+      "geo_lat": 68.95634,
+      "geo_lon": 33.095787,
+      "postal_code": "183038"
+    },
+    "52": {
+      "geo_lat": 56.28902025,
+      "geo_lon": 43.939602,
+      "postal_code": "603000"
+    },
+    "53": {
+      "geo_lat": 58.53472,
+      "geo_lon": 31.268523000000002,
+      "postal_code": "173008"
+    },
+    "54": {
+      "geo_lat": 55.0164127,
+      "geo_lon": 82.9381753,
+      "postal_code": "630133"
+    },
+    "55": {
+      "geo_lat": 54.990638,
+      "geo_lon": 73.35430255,
+      "postal_code": "644112"
+    },
+    "56": {
+      "geo_lat": 51.7959881,
+      "geo_lon": 55.13452,
+      "postal_code": "460060"
+    },
+    "57": {
+      "geo_lat": 52.974579,
+      "geo_lon": 36.069613,
+      "postal_code": "302040"
+    },
+    "58": {
+      "geo_lat": 53.203087,
+      "geo_lon": 44.9904005,
+      "postal_code": "-1"
+    },
+    "59": {
+      "geo_lat": 58.00789,
+      "geo_lon": 56.241125499999995,
+      "postal_code": "614095"
+    },
+    "6": {
+      "geo_lat": 43.2215509,
+      "geo_lon": 44.8087482,
+      "postal_code": "386001"
+    },
+    "60": {
+      "geo_lat": 57.8165296,
+      "geo_lon": 28.3317198,
+      "postal_code": "180024"
+    },
+    "61": {
+      "geo_lat": 47.23963,
+      "geo_lon": 39.71378,
+      "postal_code": "-1"
+    },
+    "62": {
+      "geo_lat": 54.6238731,
+      "geo_lon": 39.7358609,
+      "postal_code": "390000"
+    },
+    "63": {
+      "geo_lat": 53.2257129,
+      "geo_lon": 50.173675,
+      "postal_code": "443028"
+    },
+    "64": {
+      "geo_lat": 51.5368145,
+      "geo_lon": 46.0132237,
+      "postal_code": "410000"
+    },
+    "65": {
+      "geo_lat": 46.95063,
+      "geo_lon": 142.74156,
+      "postal_code": "693023"
+    },
+    "66": {
+      "geo_lat": 56.8348373,
+      "geo_lon": 60.59571215,
+      "postal_code": "620000"
+    },
+    "67": {
+      "geo_lat": 54.772884,
+      "geo_lon": 32.0529596,
+      "postal_code": "214036"
+    },
+    "68": {
+      "geo_lat": 52.74322,
+      "geo_lon": 41.437336,
+      "postal_code": "392019"
+    },
+    "69": {
+      "geo_lat": 56.849384,
+      "geo_lon": 35.89517,
+      "postal_code": "170043"
+    },
+    "7": {
+      "geo_lat": 43.486004,
+      "geo_lon": 43.60713,
+      "postal_code": "-1"
+    },
+    "70": {
+      "geo_lat": 56.4954871,
+      "geo_lon": 84.9788932,
+      "postal_code": "634021"
+    },
+    "71": {
+      "geo_lat": 54.18486,
+      "geo_lon": 37.626681,
+      "postal_code": "300000"
+    },
+    "72": {
+      "geo_lat": 57.14625315,
+      "geo_lon": 65.5705242,
+      "postal_code": "625033"
+    },
+    "73": {
+      "geo_lat": 54.30255,
+      "geo_lon": 48.3782008,
+      "postal_code": "432054"
+    },
+    "74": {
+      "geo_lat": 55.1672531,
+      "geo_lon": 61.34843075,
+      "postal_code": "454080"
+    },
+    "75": {
+      "geo_lat": 52.040816899999996,
+      "geo_lon": 113.4919091,
+      "postal_code": "672039"
+    },
+    "76": {
+      "geo_lat": 57.624226,
+      "geo_lon": 39.85752,
+      "postal_code": "150006"
+    },
+    "77": {
+      "geo_lat": 55.7231199,
+      "geo_lon": 37.5895371,
+      "postal_code": "-1"
+    },
+    "78": {
+      "geo_lat": 59.939084,
+      "geo_lon": 30.3159004,
+      "postal_code": "190000"
+    },
+    "79": {
+      "geo_lat": 48.7980392,
+      "geo_lon": 132.9199929,
+      "postal_code": "679000"
+    },
+    "8": {
+      "geo_lat": 46.30997615,
+      "geo_lon": 44.2757651,
+      "postal_code": "358014"
+    },
+    "83": {
+      "geo_lat": 67.64033,
+      "geo_lon": 53.029216,
+      "postal_code": "166000"
+    },
+    "86": {
+      "geo_lat": 61.2351,
+      "geo_lon": 73.3936269,
+      "postal_code": "628414"
+    },
+    "87": {
+      "geo_lat": 64.73596,
+      "geo_lon": 177.495054,
+      "postal_code": "689000"
+    },
+    "89": {
+      "geo_lat": 66.08537,
+      "geo_lon": 76.6715265,
+      "postal_code": "629303"
+    },
+    "9": {
+      "geo_lat": 44.2043333,
+      "geo_lon": 42.0466704,
+      "postal_code": "369000"
+    },
+    "91": {
+      "geo_lat": 44.9431596,
+      "geo_lon": 34.1103542,
+      "postal_code": "-1"
+    },
+    "92": {
+      "geo_lat": 44.590088,
+      "geo_lon": 33.4894305,
+      "postal_code": "299038"
+    }
+  },
+  "train_rows_after_cleaning": 884957,
+  "train_metrics": {
+    "MAE": 765240.7917,
+    "RMSE": 1690548.1995,
+    "R2": 0.9129,
+    "MAPE_percent": 13.6326
+  },
+  "valid_metrics": {
+    "MAE": 780781.4763,
+    "RMSE": 1756825.0697,
+    "R2": 0.9058,
+    "MAPE_percent": 13.8856
+  },
+  "interval_coverage_percent": 68.84,
+  "avg_interval_width": 2036171.0,
+  "source_file": "input_data.csv"
+}
