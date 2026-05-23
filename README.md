@@ -20,7 +20,8 @@ Telegram-бот берет ответы пользователя и собира
 Установка зависимостей:
 
 ```bash
-pip install -r requirements.txt
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
 ```
 
 Файл с данными должен лежать в корне проекта:
@@ -56,7 +57,13 @@ RMSE: 1 756 825 руб.
 Запуск Telegram-бота:
 
 ```bash
-python src/bot.py
+.venv/bin/python src/bot.py
+```
+
+Быстрая проверка, что код бота, зависимости и модели загружаются локально:
+
+```bash
+.venv/bin/python -c "import src.bot as b; print(b.predict_price({'id_region':'77','area':60,'rooms':2,'level':7,'levels':16,'kitchen_area':10,'building_type':'1','object_type':'0','postal_code':''}))"
 ```
 
 Токен Telegram-бота должен лежать в локальном файле `.env`:

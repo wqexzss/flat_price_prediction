@@ -8,3 +8,6 @@ catboost_info/
 src/catboost_info/
 input_data.csv
 models/*.cbm
+.bot.lock
+data/raw/
+data/processed/

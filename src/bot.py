@@ -1,5 +1,7 @@
 import json
+import logging
 import os
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -17,15 +19,22 @@ from telegram.ext import (
 )
 
 
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO,
+)
+logger = logging.getLogger(__name__)
+
 BASE_DIR = Path(__file__).parent.parent
 load_dotenv(dotenv_path=BASE_DIR / '.env')
-BOT_TOKEN = os.getenv('BOT_TOKEN')
+BOT_TOKEN = os.getenv('BOT_TOKEN', '').strip()
 
 MODEL_DIR = BASE_DIR / 'models'
 MODEL_PATH = MODEL_DIR / 'input_catboost_model.cbm'
 MODEL_LOW_PATH = MODEL_DIR / 'input_catboost_low.cbm'
 MODEL_HIGH_PATH = MODEL_DIR / 'input_catboost_high.cbm'
 CONFIG_PATH = MODEL_DIR / 'input_model_config.json'
+LOCK_PATH = BASE_DIR / '.bot.lock'
 
 REGION, AREA, ROOMS, FLOOR, TOTAL_FLOORS, KITCHEN, BUILDING_TYPE, OBJECT_TYPE, POSTAL_CODE, COORDS = range(10)
 
@@ -86,6 +95,26 @@ REGION_DEFAULTS = config.get('region_defaults', {})
 model = load_model(MODEL_PATH)
 model_low = load_model(MODEL_LOW_PATH)
 model_high = load_model(MODEL_HIGH_PATH)
+lock_file = None
+
+
+def lock_single_instance():
+    global lock_file
+
+    if os.name != 'posix':
+        return
+
+    import fcntl
+
+    lock_file = open(LOCK_PATH, 'w', encoding='utf-8')
+    try:
+        fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        logger.error('Бот уже запущен. Останови старый процесс или терминал с bot.py.')
+        sys.exit(1)
+
+    lock_file.write(str(os.getpid()))
+    lock_file.flush()
 
 
 def safe_divide(first, second, default=0):
@@ -166,7 +195,7 @@ def predict_price(flat):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     await update.message.reply_text(
-        'Привет! Я оцениваю квартиру по input_data.csv.\n\n'
+        'Привет! Я оцениваю квартиру по данным о квартирах в России.\n\n'
         'Выбери регион или напиши номер региона, например 77 для Москвы.',
         reply_markup=ReplyKeyboardMarkup(
             [
@@ -191,18 +220,14 @@ async def get_region(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     context.user_data['id_region'] = region
     await update.message.reply_text(
-        'Какая площадь квартиры? Например: 60',
+        'Какая общая площадь всей квартиры? Например: 60 кв. м',
         reply_markup=ReplyKeyboardRemove(),
     )
     return AREA
 
-
 async def get_area(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         area = float(update.message.text.replace(',', '.'))
-        if area < 10 or area > 250:
-            await update.message.reply_text('Введи площадь от 10 до 250 кв. м')
-            return AREA
 
         context.user_data['area'] = area
         await update.message.reply_text('Сколько комнат? Студия = 0, обычная двушка = 2')
@@ -253,7 +278,7 @@ async def get_total_floors(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return TOTAL_FLOORS
 
         context.user_data['levels'] = levels
-        await update.message.reply_text('Какая площадь кухни? Если не знаешь, напиши 0')
+        await update.message.reply_text('Какая площадь кухни отдельно? Если не знаешь, напиши 0')
         return KITCHEN
     except ValueError:
         await update.message.reply_text('Введи целое число')
@@ -361,6 +386,7 @@ async def get_coords(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text('Введи координаты как числа или напиши 0')
         return COORDS
     except Exception as error:
+        logger.exception('Ошибка при расчете цены')
         await update.message.reply_text(f'Ошибка: {error}')
         return ConversationHandler.END
 
@@ -373,11 +399,35 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 
+async def unknown_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('Напиши /start, чтобы начать оценку квартиры.')
+
+
+async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
+    logger.exception('Ошибка при обработке update=%s', update, exc_info=context.error)
+
+    if isinstance(update, Update) and update.effective_message:
+        await update.effective_message.reply_text(
+            'Что-то пошло не так. Напиши /start, чтобы начать заново.'
+        )
+
+
 def main():
     if not BOT_TOKEN:
         raise ValueError('Не найден BOT_TOKEN в .env')
 
-    app = Application.builder().token(BOT_TOKEN).build()
+    lock_single_instance()
+
+    app = (
+        Application.builder()
+        .token(BOT_TOKEN)
+        .concurrent_updates(False)
+        .connect_timeout(30)
+        .read_timeout(30)
+        .write_timeout(30)
+        .pool_timeout(30)
+        .build()
+    )
     conv = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
         states={
@@ -392,11 +442,20 @@ def main():
             POSTAL_CODE: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_postal_code)],
             COORDS: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_coords)],
         },
-        fallbacks=[CommandHandler('cancel', cancel)],
+        fallbacks=[CommandHandler('start', start), CommandHandler('cancel', cancel)],
+        allow_reentry=True,
+        per_chat=True,
+        per_user=True,
     )
     app.add_handler(conv)
-    print('Бот запущен. Модель: input_data.csv')
-    app.run_polling()
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, unknown_message))
+    app.add_error_handler(error_handler)
+    logger.info('Бот запущен. Модель: input_data.csv')
+    app.run_polling(
+        allowed_updates=Update.ALL_TYPES,
+        bootstrap_retries=-1,
+        drop_pending_updates=True,
+    )
 
 
 if __name__ == '__main__':
